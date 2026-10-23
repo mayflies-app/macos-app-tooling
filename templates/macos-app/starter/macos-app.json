@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "product": "ExampleApp",
+  "appName": "ExampleApp",
+  "executable": "ExampleApp",
+  "bundleIdentifier": "app.mayfiles.ExampleApp",
+  "repository": "mayflies-app/example-app",
+  "caskToken": "exampleapp",
+  "description": "Replace this with the product's actual purpose",
+  "minimumSystemVersion": "14.0",
+  "buildSystem": "swiftpm",
+  "architectures": ["arm64", "x86_64", "universal"],
+  "versionFile": "VERSION",
+  "releaseAdapter": "scripts/app.py",
+  "paths": {"sharedRelease": "scripts/lib/release"},
+  "shared": {
+    "designDestination": "Sources/ExampleApp/MacAppDesign.swift",
+    "localizationDestination": "Sources/ExampleApp/LocalizationResources.swift"
+  },
+  "packaging": {
+    "metadata": {"LSUIElement": true, "NSHighResolutionCapable": true},
+    "resources": [],
+    "resourceBundles": [],
+    "dependencyLicenses": []
+  }
+}
