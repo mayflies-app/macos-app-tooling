@@ -31,6 +31,8 @@ class WorkflowHandoffTests(unittest.TestCase):
             with self.subTest(job=job):
                 steps = self.jobs[job]['steps']
                 index = next(i for i, step in enumerate(steps) if step.get('uses', '').startswith('actions/download-artifact'))
+                self.assertEqual(steps[index]['with']['digest-mismatch'], 'error',
+                                 'a corrupted artifact must stop before notarization or publication')
                 guard = next((step for step in steps[:index] if step.get('name') == 'Validate artifact handoff'), None)
                 self.assertIsNotNone(guard, 'an empty artifact ID must never reach the download action')
                 for artifact in ('', 'abc', '1,2', '42'):
@@ -102,6 +104,7 @@ class WorkflowHandoffTests(unittest.TestCase):
             public = root / 'public'
             public.mkdir()
             upload = next(step for step in self.jobs['notarize']['steps'] if step.get('id') == 'notarized')
+            self.assertTrue(upload['with']['archive'], 'named multi-file handoffs require a ZIP archive')
             names = set()
             for pattern in upload['with']['path'].splitlines():
                 for path in output.glob(Path(pattern).name):

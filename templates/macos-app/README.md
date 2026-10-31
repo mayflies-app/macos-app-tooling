@@ -1,9 +1,10 @@
 # macOS App Template
 
 The shared `scripts/app.py` and `scripts/lib` are copied into each app repository.
-`ci.yml` and `release.yml` are copied into `.github/workflows`. Apps using the shared
-SwiftUI design declare `shared.designDestination` in their `macos-app.json` for
-`shared/MacAppDesign.swift`.
+`ci.yml` and `release.yml` are copied into `.github/workflows`; `dependabot.yml`
+is copied into `.github/dependabot.yml` for weekly grouped Actions update proposals.
+Apps using the shared SwiftUI design declare `shared.designDestination` in their
+`macos-app.json` for `shared/MacAppDesign.swift`.
 There is no runtime dependency on this checkout.
 
 Runtime translations live in English and Simplified Chinese `.lproj/*.strings`
@@ -121,9 +122,9 @@ and commit history in Git.
 
 ## Shared Maintenance
 
-This tooling repository owns `scripts/`, `.github/workflows/ci.yml`, and
-`.github/workflows/release.yml` copied to each app. Each app's `macos-app.json`
-owns the repository-relative `shared.designDestination` and
+This tooling repository owns `scripts/`, `.github/workflows/ci.yml`,
+`.github/workflows/release.yml`, and `.github/dependabot.yml` copied to each app.
+Each app's `macos-app.json` owns the repository-relative `shared.designDestination` and
 `shared.localizationDestination` for the optional Swift helpers. Edit shared
 implementations in this template and compare explicitly supplied consumers with
 `python3 -B scripts/sync_apps.py --check APP_CHECKOUT [APP_CHECKOUT ...]` from this
@@ -154,6 +155,16 @@ Choose verification by the affected behavior:
   its development guide. Build, package, or inspect native UI only when affected.
 
 ## CI and Distribution
+
+Actions use Node.js 24 releases: checkout v7, cache v6, upload-artifact v7 and
+download-artifact v8. Artifact uploads retain named ZIP archives; downloads use
+exact artifact IDs and fail on digest mismatches before release processing.
+
+Dependabot proposes grouped weekly updates for workflows in `.github/workflows`.
+It does not scan the workflow templates in this directory. Apply proposed shared
+workflow changes here first, then synchronize and review the affected consumers;
+do not merge consumer-only changes that would be overwritten by synchronization.
+Release execution remains a manual workflow with its existing publication inputs.
 
 CI and release execution use the GitHub-hosted `xcode-27` runner, Xcode 27, and SDK 27.
 Pure release previews run separately on `ubuntu-latest`. Ordinary CI cancels older

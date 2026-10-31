@@ -25,6 +25,7 @@ class SyncAcceptance(unittest.TestCase):
             "scripts/lib/signing.sh": "# shared signing\n",
             "ci.yml": "name: CI\n",
             "release.yml": "name: Release\n",
+            "dependabot.yml": "version: 2\nupdates: []\n",
             "shared/MacAppDesign.swift": "// shared design\n",
             "shared/LocalizationResources.swift": "// shared localization\n",
         }
@@ -89,6 +90,7 @@ class SyncAcceptance(unittest.TestCase):
         self.assertEqual((self.repo / "Sources/Core/LocalizationResources.swift").read_text(),
                          self.sources["shared/LocalizationResources.swift"])
         self.assertEqual((self.repo / ".github/workflows/ci.yml").read_text(), self.sources["ci.yml"])
+        self.assertEqual((self.repo / ".github/dependabot.yml").read_text(), self.sources["dependabot.yml"])
         self.assertEqual((self.repo / "Own.swift").read_text(), "// retained product source\n")
         self.assertFalse((self.hub / "catalog").exists())
 
@@ -132,6 +134,17 @@ class SyncAcceptance(unittest.TestCase):
         self.assertEqual(self.snapshot(self.repo), before)
         self.assertEqual(self.git(second, "diff", "--cached", "--binary"), staged)
         self.assertEqual(changed.read_text(), "# staged app change\n")
+
+    def test_staged_dependabot_configuration_is_not_overwritten(self):
+        self.assert_code(0, "--apply", self.repo)
+        target = self.repo / ".github/dependabot.yml"
+        target.write_text("version: 2\n# app change\n")
+        self.git(self.repo, "add", ".github/dependabot.yml")
+        before = self.snapshot(self.repo)
+        staged = self.git(self.repo, "diff", "--cached", "--binary")
+        self.assert_code(2, "--apply", self.repo)
+        self.assertEqual(self.snapshot(self.repo), before)
+        self.assertEqual(self.git(self.repo, "diff", "--cached", "--binary"), staged)
 
     def test_duplicate_checkout_and_nonroot_paths_are_rejected(self):
         self.assert_code(2, "--apply", self.repo, self.repo)

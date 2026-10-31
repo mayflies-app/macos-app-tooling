@@ -43,6 +43,7 @@ def payloads(root, shared):
     if not result:
         raise ValueError("Template scripts are missing")
     result += [(safe_path(template, name), f".github/workflows/{name}") for name in ("ci.yml", "release.yml")]
+    result.append((safe_path(template, "dependabot.yml"), ".github/dependabot.yml"))
     for key, name in (("designDestination", "MacAppDesign.swift"),
                       ("localizationDestination", "LocalizationResources.swift")):
         if key in shared:
